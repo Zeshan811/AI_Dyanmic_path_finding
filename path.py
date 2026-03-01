@@ -71,3 +71,24 @@ def draw_grid():
                 color = GREEN
             pygame.draw.rect(screen, color, (x, y, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(screen, GRAY, (x, y, CELL_SIZE, CELL_SIZE), 1)
+    # Draw metrics
+    metrics_text = font.render(f"Nodes Visited: {nodes_expanded} | Path Cost: {path_cost} | Time: {exec_time:.2f} ms", True, (0,0,0))
+    screen.blit(metrics_text, (5, WINDOW_HEIGHT + 5))
+    pygame.display.update()
+
+def generate_random_grid():
+    global grid
+    for i in range(ROWS):
+        for j in range(COLS):
+            if (i, j) != start and (i, j) != goal:
+                grid[i][j] = 1 if random.random() < density else 0
+    draw_grid()
+
+def toggle_obstacle(pos):
+    x, y = pos
+    row = y // CELL_SIZE
+    col = x // CELL_SIZE
+    if (row, col) != start and (row, col) != goal:
+        grid[row][col] = 0 if grid[row][col] == 1 else 1
+    draw_grid()
+

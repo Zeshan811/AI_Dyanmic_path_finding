@@ -166,3 +166,54 @@ def spawn_obstacle():
     c = random.randint(0, COLS-1)
     if grid[r][c] == 0 and (r,c) != start and (r,c) != goal:
         grid[r][c] = 1
+
+
+# ========== MAIN LOOP ==========
+running = True
+generate_random_grid()
+path = []
+
+while running:
+    clock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            toggle_obstacle(pygame.mouse.get_pos())
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                generate_random_grid()
+            elif event.key == pygame.K_SPACE:
+                # Start search
+                path = search(start)
+                if path:
+                    path_cost = len(path)
+                    for node in path:
+                        if dynamic_mode and random.random() < 0.05:
+                            spawn_obstacle()
+                            if node in path:
+                                path = search(node)
+                                if not path:
+                                    break
+                        grid[node[0]][node[1]] = 6
+                        draw_grid()
+                        pygame.time.delay(50)
+            elif event.key == pygame.K_a:
+                algorithm_choice = "A*"
+                print("Algorithm: A*")
+            elif event.key == pygame.K_g:
+                algorithm_choice = "GBFS"
+                print("Algorithm: GBFS")
+            elif event.key == pygame.K_m:
+                heuristic_choice = "Manhattan"
+                print("Heuristic: Manhattan")
+            elif event.key == pygame.K_e:
+                heuristic_choice = "Euclidean"
+                print("Heuristic: Euclidean")
+            elif event.key == pygame.K_d:
+                dynamic_mode = not dynamic_mode
+                print(f"Dynamic Mode: {dynamic_mode}")
+
+    draw_grid()
+
+pygame.quit()

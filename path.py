@@ -159,3 +159,10 @@ def search(start_node):
         pygame.time.delay(10)
     return None
 
+
+# ========== DYNAMIC OBSTACLES ==========
+def spawn_obstacle():
+    r = random.randint(0, ROWS-1)
+    c = random.randint(0, COLS-1)
+    if grid[r][c] == 0 and (r,c) != start and (r,c) != goal:
+        grid[r][c] = 1

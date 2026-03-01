@@ -92,3 +92,70 @@ def toggle_obstacle(pos):
         grid[row][col] = 0 if grid[row][col] == 1 else 1
     draw_grid()
 
+
+# ========== HEURISTICS ==========
+def heuristic(a, b):
+    if heuristic_choice == "Manhattan":
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+    else:
+        return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+
+# ========== PATHFINDING ==========
+def get_neighbors(node):
+    dirs = [(1,0), (-1,0), (0,1), (0,-1)]
+    result = []
+    for d in dirs:
+        r = node[0] + d[0]
+        c = node[1] + d[1]
+        if 0 <= r < ROWS and 0 <= c < COLS:
+            if grid[r][c] != 1:
+                result.append((r,c))
+    return result
+
+def reconstruct_path(came_from, current):
+    path = []
+    while current in came_from:
+        path.append(current)
+        current = came_from[current]
+    path.reverse()
+    return path
+
+def search(start_node):
+    global nodes_expanded, exec_time
+    nodes_expanded = 0
+    open_set = PriorityQueue()
+    open_set.put((0, start_node))
+    came_from = {}
+    g_score = {start_node: 0}
+    start_time = time.time()
+
+    while not open_set.empty():
+        current = open_set.get()[1]
+        nodes_expanded += 1
+
+        if current == goal:
+            exec_time = (time.time() - start_time) * 1000
+            return reconstruct_path(came_from, current)
+
+        for neighbor in get_neighbors(current):
+            tentative_g = g_score[current] + 1
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g
+
+                if algorithm_choice == "A*":
+                    f = tentative_g + heuristic(neighbor, goal)
+                else:
+                    f = heuristic(neighbor, goal)
+
+                open_set.put((f, neighbor))
+                if grid[neighbor[0]][neighbor[1]] == 0:
+                    grid[neighbor[0]][neighbor[1]] = 5
+
+        if current != start_node:
+            grid[current[0]][current[1]] = 4
+
+        draw_grid()
+        pygame.time.delay(10)
+    return None
+
